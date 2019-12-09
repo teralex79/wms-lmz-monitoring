@@ -13,9 +13,19 @@ focus -force .
 
 console show
 
-source ./Top/wms_clnt_TT.tcl
-source ./Top/wms_clnt_Spec.tcl
-source ./Top/wms_clnt_Adam.tcl
+set wms(src_path) "./src/monitoring"
+set wms(conf_path) "./conf/monitoring"
+set wms(log_path) "./log/monitoring"
+set wms(data_path) "./data"
+
+catch [file mkdir $wms(conf_path)/smart_place]
+catch [file mkdir $wms(log_path)]
+catch [file mkdir $wms(data_path)]
+
+
+source $wms(src_path)/wms_clnt_TT.tcl
+source $wms(src_path)/wms_clnt_Spec.tcl
+source $wms(src_path)/wms_clnt_Adam.tcl
 
   set wms(lst) {0 1 2 3 4 5 6 7 8 9 a b c d e f g h i j k l m n o p q r s t u v w x y z}
 
@@ -335,7 +345,7 @@ global wms
 
  set part "[clock format [clock seconds] -format "%y%m%d"]"
 
- set g [glob -nocomplain -directory "./Data/$part/" -tails "./Data/$part/" -type f "${part}*"]
+ set g [glob -nocomplain -directory "$wms(data_path)/$part/" -tails "$wms(data_path)/$part/" -type f "${part}*"]
  set old 0
 
   if {[llength $g]} {
@@ -663,9 +673,9 @@ global dasop max min increm
 proc ReadIni {} {
 global wms rs meas
   foreach name $wms(zond) {
-    if {[file exists "./Data/Config/[info hostname]_$name.ini"]} {
+    if {[file exists "$wms(conf_path)/[info hostname]_$name.ini"]} {
 
-      set ini [open "./Data/Config/[info hostname]_$name.ini" "r"]
+      set ini [open "$wms(conf_path)/[info hostname]_$name.ini" "r"]
 
       set data [read $ini]
       close $ini
@@ -689,7 +699,7 @@ global wms rs meas
 proc SaveIni {name} {
 global wms meas
 
-  set of [open ./Data/Config/[info hostname]_$name.ini "w"]
+  set of [open $wms(conf_path)/[info hostname]_$name.ini "w"]
 
   puts $of "wms(conf,t_cicl) $wms(conf,t_cicl)"
 #  puts $of "wms(temp) $wms(temp)"
@@ -718,8 +728,8 @@ proc SaveFile {name join} {
 global wms
 
   set part "[clock format [clock seconds] -format "%y%m%d"]"
-  catch [file mkdir ./Data/$part/]
-  if {![file exists "./Data/$part/$wms(measnm)_$name.txt"] } {
+  catch [file mkdir $wms(data_path)/$part/]
+  if {![file exists "$wms(data_path)/$part/$wms(measnm)_$name.txt"] } {
 
     set head 1
   } else {
@@ -727,7 +737,7 @@ global wms
     set head 0
   }
 
-  set log [open "./Data/$part/$wms(measnm)_$name.txt" "a"]
+  set log [open "$wms(data_path)/$part/$wms(measnm)_$name.txt" "a"]
 
   if {$head} {
 
@@ -810,8 +820,8 @@ proc SaveIo {name join} {
 global wms
 
   set part "[clock format [clock seconds] -format "%y%m%d"]"
-  catch [file mkdir ./Data/$part/]
-  if {![file exists "./Data/$part/${name}_Io.txt"] } {
+  catch [file mkdir $wms(data_path)/$part/]
+  if {![file exists "$wms(data_path)/$part/${name}_Io.txt"] } {
 
     set head 1
   } else {
@@ -819,7 +829,7 @@ global wms
     set head 0
   }
 
-  set log [open "./Data/$part/${name}_Io.txt" "a"]
+  set log [open "$wms(data_path)/$part/${name}_Io.txt" "a"]
 
   if {$head} {
 
@@ -904,8 +914,8 @@ global wms
   foreach name $wms(zond) {
     if {$wms($name,conf,active)} {
       set part "[clock format [clock seconds] -format "%y%m%d"]"
-      if {[file exists "./Data/$part/${name}_Io.txt"]} {
-        set log [open "./Data/$part/${name}_Io.txt" "r"]
+      if {[file exists "$wms(data_path)/$part/${name}_Io.txt"]} {
+        set log [open "$wms(data_path)/$part/${name}_Io.txt" "r"]
         set data [read $log]
         close $log
         set lines [split $data \n]

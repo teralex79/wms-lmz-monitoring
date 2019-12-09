@@ -7,7 +7,7 @@ global so dp path
 
 ## Predvaritel'noe zadanie puti k konfiguratsionnomu faylu
 
-  set w ./Data
+  set w ./data
 
 ## Opisanie tipov otobrazhaemih faylov
 
