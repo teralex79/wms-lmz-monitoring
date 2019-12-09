@@ -29,18 +29,14 @@ source $wms(src_path)/wms_clnt_Adam.tcl
 
   set wms(lst) {0 1 2 3 4 5 6 7 8 9 a b c d e f g h i j k l m n o p q r s t u v w x y z}
 
-  set wms(zond) {S01 S04 S05 S07 A1 A2}
+  set wms(zond) {S01 S02}
   set wms(zndjntctr) 0
   set wms(temp) 0
   set wms(meas) 0
   set wms(tempaver) 1
 
   set wms(L,S01) {25}
-  set wms(L,S04) {35}
-  set wms(L,S05) {45}
-  set wms(L,S07) {45}
-  set wms(L,A1)  {35}
-  set wms(L,A2)  {25}
+  set wms(L,S02) {35}
   set wms(sph) 0
 
   set cnt 0
@@ -96,13 +92,6 @@ source $wms(src_path)/wms_clnt_Adam.tcl
       }
     }
   }
-#  set m1 .menu.prop.io
-#  $m add cascade -label "Read_Io" -menu $m1 -underline 0
-#  menu $m1  -tearoff 0
-#  foreach name $wms(zond) {
-#    $m1 add command -label "$name" -command "ReadIo $name"
-#  }
-
 
   set mf [frame .mf]
   grid $mf -row 0 -column 0 -sticky nw
@@ -160,12 +149,10 @@ global wms
     set b 1
     set cmd Meas
     set stt disabled
-#    .mf.join1 configure -state active
     .mf.btIo configure -state active
     update
   }
   .mf.btstart configure -text $txt -state $stt -command "set wms(meas) $b; ChangeBt $b; $cmd"
-#  .mf.btIo configure -state $stt
 }
 
 proc Properties {} {
@@ -238,16 +225,6 @@ global wms meas
   set bt [frame .prop.frbt]
   grid $bt -row 1 -column 0 -sticky nw
 
-#  button $bt.save -text "Сохранить" -width 10 -command {
-
-#    after 100 {
-#      SaveIni
-#      ReadIni
-#    }
-#    destroy .prop
-#  }
-#  grid $bt.save -row 0 -column 0 -padx 1 -pady 2
-
   button $bt.cnsl -text "Закрыть" -width 10 -command {
           after 100 ReadIni
           destroy .prop
@@ -299,8 +276,6 @@ global wms
           set wms(busytemp) 1
           MeasTemp $name 1 1 1
           if {$wms(busytemp)} {vwait wms(busytemp)}
-#          set wms($name,meas,temp)
-#          set wms($name,meas,temp) 0
         } else {
           set wms($name,meas,temp) 0
         }
@@ -377,11 +352,7 @@ global meas wms max
   switch $name {
 
     S01 {set cnt1 0; set cnt2 0}
-    S04 {set cnt1 1; set cnt2 0}
-    S05 {set cnt1 0; set cnt2 1}
-    S07 {set cnt1 1; set cnt2 1}
-    A1  {set cnt1 0; set cnt2 0}
-    A2  {set cnt1 0; set cnt2 1}
+    S02 {set cnt1 1; set cnt2 0}
   }
 
   toplevel .graph$name
@@ -411,7 +382,6 @@ global meas wms max
 
           vector create x${name}$tb y${name}630_$tb y${name}520_$tb y${name}460_$tb y${name}300_$tb
 
-#          $c.sc xaxis configure -title "" -autorange 21600 -stepsize 4320 -subdivisions 3 -color black -shiftby 10 -command FormatXTicks
           $c.sc xaxis configure -title "" -autorange 7200 -stepsize 1440 -subdivisions 3 -color black -shiftby 10 -command FormatXTicks
 
           $c.sc grid configure -hide no -dashes {2 2} -color black
@@ -443,10 +413,6 @@ global meas wms max
           label $c.fr.vartemp -textvar wms($name,meas,temp) -fg white -bg grey -anchor nw -font -*-helvetica-bold-r-*-15-*-*-*-*-*-*-koi8-r
           grid  $c.fr.vartemp -row $cnt -column 1 -sticky news
           incr cnt
-
-#          menu $tnb.pmenu$name -tearoff 0
-#          $tnb.pmenu$name add check -label "Autoscaling" -variable dasop($name,autosc)
-#           -command "AutoScale $name $tab($n) $tnb $n"
 
       }
       "IIo_Spec" {
@@ -515,7 +481,6 @@ global meas wms max
 
           vector create x${name}$tb y${name}630 y${name}520 y${name}460 y${name}300
 
-#          $c.sc xaxis configure -title "" -autorange 21600 -stepsize 4320 -subdivisions 3 -color black -shiftby 10 -command FormatXTicks
           $c.sc xaxis configure -title "" -autorange 7200 -stepsize 1440 -subdivisions 3 -color black -shiftby 10 -command FormatXTicks
 
           $c.sc grid configure -hide no -dashes {2 2} -color black
@@ -552,55 +517,28 @@ global meas wms max
 
           set w [labelframe $c.lf1l -text "Y max" -font -*-helvetica-bold-r-*-8-*-*-*-*-*-*-koi8-r]
           $c create window 160 0 -window $w -anchor ne
-#
+
           spinbox $w.sb -width 5 -from -999 -to 70000 -increment 500 -textvariable max($name,$tb)\
            -justify right -font -*-helvetica-bold-r-*-18-*-*-*-*-*-*-koi8-r\
            -command "ConfY $c $name max $tb"
-#
+
           bind $w.sb <Return> "ConfY $c $name max $tb"
           bind $w.sb <KeyRelease> "ConfY $c $name max $tb"
-#
-          pack $w.sb
-#          menu $tnb.pmenu$name -tearoff 0
-#          $tnb.pmenu$name add check -label "Autoscaling" -variable dasop($name,autosc)
-#           -command "AutoScale $name $tab($n) $tnb $n"
 
+          pack $w.sb
       }
     }
     incr tab
   }
 }
-#console show
+
 proc ConfY {c name type scale} {
 global dasop max min increm
 
  if {[info exist max($name,$scale)]} {
 
-#  if {$dasop($name,autosc)} {
-#
-#    if {[lsearch -exact $dasop($name,autosc,store) $scale$ngr$name ]==-1} {
-
-#      if {$dasop($name,autosc,cnt)!=1} {
-#
-#        incr dasop($name,autosc,cnt) -1
-#        lappend dasop($name,autosc,store) $scale$ngr$name
-#      } else {
-#
-#        set dasop($name,autosc) 0
-#      }
-#    }
-#  }
-#puts "max1 $max($name,$scale)"
-
   if {$type=="max"} {
-#puts "max2 $max($name,$scale)"
-#    if {$max($name,$scale,$ngr)>$min($name,$scale,$ngr)} {
-#
-      $c.sc yaxis configure -max $max($name,$scale)
-#    } else {
 
-#      set max($name,$scale) [expr {$max($name,$scale)+100}]
-#    }
   } elseif {$type=="up"} {
 
       set max($name,$scale,$ngr) [expr {$max($name,$scale,$ngr)+$increm($name,$scale,$ngr)}]
@@ -693,7 +631,6 @@ global wms rs meas
     }
   }
   if {$wms(zndjntctr)} {RunAdam}
-#  if {$wms(temp)} {runtt }
 }
 
 proc SaveIni {name} {
@@ -702,25 +639,20 @@ global wms meas
   set of [open $wms(conf_path)/[info hostname]_$name.ini "w"]
 
   puts $of "wms(conf,t_cicl) $wms(conf,t_cicl)"
-#  puts $of "wms(temp) $wms(temp)"
   puts $of "wms(zndjntctr) $wms(zndjntctr)"
-#  puts $of "wms(temp) 0"
-#  puts $of "wms(zndjntctr) 0"
 
-#  foreach name $wms(zond) {
+  puts $of ""
+  puts $of "# $name"
+  puts $of ""
 
-    puts $of ""
-    puts $of "# $name"
-    puts $of ""
+  puts $of "wms($name,adr,moxa) $wms($name,adr,moxa)"
+  puts $of "wms($name,port,swms) $wms($name,port,swms)"
+  puts $of "wms($name,port,adam) $wms($name,port,adam)"
+  puts $of "wms($name,conf,adr) $wms($name,conf,adr)"
 
-    puts $of "wms($name,adr,moxa) $wms($name,adr,moxa)"
-    puts $of "wms($name,port,swms) $wms($name,port,swms)"
-    puts $of "wms($name,port,adam) $wms($name,port,adam)"
-    puts $of "wms($name,conf,adr) $wms($name,conf,adr)"
+  puts $of "wms($name,swms,IntTime) $wms($name,swms,IntTime)"
+  puts $of "wms($name,swms,PixMode) $wms($name,swms,PixMode)"
 
-    puts $of "wms($name,swms,IntTime) $wms($name,swms,IntTime)"
-    puts $of "wms($name,swms,PixMode) $wms($name,swms,PixMode)"
-#  }
   close $of
 }
 
@@ -807,7 +739,6 @@ global wms
   puts -nonewline $log [format "%9d"   $wms($name,swms,PixMode)]
   puts -nonewline $log [format "%12d"  $wms($name,swms,IntTime)]
 
-#  foreach meas $wms($name,swms,Imeas,$join)
   foreach meas $wms($name,swms,Icalc) {
     puts -nonewline $log "[format "%8d" $meas]"
   }
@@ -843,9 +774,6 @@ global wms
     puts -nonewline $log "$wms($name,swms,SName)"
 
     puts $log ""
-
-#    puts $log "Темновой ток: $wms($name,swms,Iblack)"
-#    puts $log ""
 
     puts -nonewline $log "L(мм)=$wms(L,$name); "
 
@@ -910,6 +838,7 @@ global wms
 
 proc ReadIo {} {
 global wms
+
   set n 0
   foreach name $wms(zond) {
     if {$wms($name,conf,active)} {
@@ -967,11 +896,8 @@ global wms
 proc GetListBox {name} {
 global wms
 
-#puts $name
-#puts [.io$name.time.list get [.io$name.time.list curselection]]
-
   set wms($name,swms,Iocalc) $wms($name,Io,[.io$name.time.list get [.io$name.time.list curselection]])
-#puts "wms($name,swms,Iocalc) $wms($name,swms,Iocalc)"
+
   .io$name.time.list delete 0 end
   destroy .io$name
 }
