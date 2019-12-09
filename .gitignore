@@ -1,0 +1,6 @@
+*.ini
+*.dat
+*.spm
+*.cfg
+data/
+*.ppr
